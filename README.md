@@ -6,25 +6,35 @@ The web-based client application can be found [here](https://github.com/mattpric
 
 ## Requirements
 
-**Linux**:
+### Linux
 
-* Git
-* GCC
-* Make
+* Git, GCC, and Make
+* [Oracle JDK 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html) or [OpenJDK 7](http://openjdk.java.net/install/index.html)
 
-**Mac OSX**:
+Note that the libpd Makefile searches for the Java libraries in `/usr/lib/jvm/default-java`, but that's not where Oracle or OpenJDK installs them. You will need to create a symbolic link to the correct location:
+
+* For Oracle: `sudo ln -s /usr/lib/jvm/java-7-oracle /usr/lib/jvm/default-java`
+* For OpenJDK, 32-bit: `sudo ln -s /usr/lib/jvm/java-7-openjdk-i386 /usr/lib/jvm/default-java`
+* For OpenJDK, 64-bit: `sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/lib/jvm/default-java`
+
+For example, on Debian and Ubuntu (64-bit) using the OpenJDK:
+```bash
+# Install Git, GCC, and Make:
+sudo apt-get install git gcc make
+
+# Install the OpenJDK 7:
+sudo apt-get install openjdk-7-jdk
+
+# Create a symbolic link to the Java libraries:
+sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/lib/java-default
+```
+
+### Mac OS X
 
 * [Xcode](http://itunes.apple.com/us/app/xcode/id497799835) or the [Command Line Tools for Xcode](https://developer.apple.com/downloads)
-
-**Windows:**
-
-* Git; [GitHub for Windows](http://windows.github.com) is the recommended Git client and will handle installing Git for you.
-* [Cygwin](http://www.cygwin.com) or the Visual Studio Command Prompt
-	* If using Cygwin, you will need to install the Git, GCC-Core, and Make packages.
+* [Oracle JDK 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ## Instructions
-
-**Note:** Windows users should replace each instance of `./gradlew` below with `./gradlew.bat`.
 
 ### Commands
 
