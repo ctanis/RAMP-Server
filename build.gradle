@@ -112,4 +112,4 @@ task buildLibpd(dependsOn: downloadLibpd) {
         println stdout.toString()
     }
 }
-run.dependsOn buildLibpd
+build.dependsOn buildLibpd
