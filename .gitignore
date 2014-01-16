@@ -3,17 +3,9 @@
 ### Java ###
 *.class
 
-# Package Files #
-*.jar
-*.war
-*.ear
-
 ### Gradle ###
 .gradle
 build/
 
 ### libpd ###
-
-# This only catches files with file extensions, but won't catch
-# the gitignore file, so the empty folder still gets committed.
-libs/*.*
+src/libpd/**/*.jar
