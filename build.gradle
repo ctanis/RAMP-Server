@@ -86,6 +86,22 @@ task downloadLibpd(type: GitClone) {
     }
 }
 
+// Deletes all compiled libpd libraries.
+task cleanLibpd {
+    description 'Deletes all compiled libpd libraries.'
+
+    doLast {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            workingDir libpdDir
+            commandLine 'make', 'clean'
+            standardOutput = stdout
+        }
+        println stdout.toString()
+    }
+}
+clean.dependsOn cleanLibpd
+
 // Builds the libpd library for your current OS.
 task buildLibpd(dependsOn: downloadLibpd) {
     description 'Compiles the libpd Java library.'
@@ -94,16 +110,6 @@ task buildLibpd(dependsOn: downloadLibpd) {
 
     doLast {
         def stdout = new ByteArrayOutputStream()
-
-        // Run `make clean`.
-        exec {
-            workingDir libpdDir
-            commandLine 'make', 'clean'
-            standardOutput = stdout
-        }
-        println stdout.toString()
-
-        // Run `make javalib`.
         exec {
             workingDir libpdDir
             commandLine 'make', 'javalib'

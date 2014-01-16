@@ -40,7 +40,7 @@ sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/lib/java-default
 
 * `./gradlew run` — Builds and runs the RAMP application.
 * `./gradlew build` — Builds the RAMP application.
-* `./gradlew clean` — Deletes all pre-compiled files. This can be useful for solving some problems. The next time you build RAMP it will build all files from scratch.
+* `./gradlew clean` — Deletes all compiled files. This can be useful if you think one of the intermediate files is corrupt. The next time you build RAMP it will build all files from scratch instead of ignoring unchanged files.
 
 ## License
 
