@@ -18,6 +18,7 @@ Note that the libpd Makefile searches for the Java libraries in `/usr/lib/jvm/de
 * For OpenJDK, 64-bit: `sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/lib/jvm/default-java`
 
 For example, on Debian and Ubuntu (64-bit) using the OpenJDK:
+
 ```bash
 # Install Git, GCC, and Make:
 sudo apt-get install git gcc make
@@ -35,6 +36,15 @@ sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64 /usr/lib/java-default
 * [Oracle JDK 7](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ## Instructions
+
+### NetBeans
+
+1. Install the "Gradle Support" plugin:
+    * Go to **Tools**, **Plugins**.
+    * Click the **Available Plugins** tab.
+    * Search and install "Gradle Support".
+2. Go to **File**, **Open Project**.
+3. Wait for NetBeans to finish scanning the project. When it has completed, you can use Run Project like normal.
 
 ### Commands
 

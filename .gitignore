@@ -3,9 +3,18 @@
 ### Java ###
 *.class
 
+### libpd ###
+src/libpd/**/*.jar
+
 ### Gradle ###
 .gradle
 build/
 
-### libpd ###
-src/libpd/**/*.jar
+### IDEs ###
+
+## IntelliJ IDEA ##
+.idea/
+*.iml
+
+## NetBeans ##
+.nb-gradle/
