@@ -18,12 +18,15 @@ public class JavaSoundThread extends Thread {
     private volatile boolean terminated;
 
     public JavaSoundThread(float sampleRate, int outChans, int ticks) {
-        this.sampleRate = sampleRate;
-        this.outChans = outChans;
-        this.ticks = ticks;
-        PdBase.openAudio(0, outChans, (int) sampleRate);
-        PdBase.computeAudio(true);
         setPriority(Thread.MAX_PRIORITY);
+
+        this.sampleRate = sampleRate;
+        this.outChans   = outChans;
+        this.ticks      = ticks;
+
+        PdBase.openAudio(0, outChans, (int)sampleRate);
+        PdBase.computeAudio(true);
+
     }
 
     @Override
