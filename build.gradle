@@ -94,7 +94,7 @@ task cleanLibpd {
         def stdout = new ByteArrayOutputStream()
         exec {
             workingDir libpdDir
-            commandLine 'make', 'clean'
+            commandLine 'make', 'clobber'
             standardOutput = stdout
         }
         println stdout.toString()

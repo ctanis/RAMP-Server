@@ -18,3 +18,7 @@ build/
 
 ## NetBeans ##
 .nb-gradle/
+
+## Sublime Text ##
+*.sublime-project
+*.sublime-workspace
