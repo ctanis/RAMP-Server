@@ -118,4 +118,4 @@ task buildLibpd(dependsOn: downloadLibpd) {
         println stdout.toString()
     }
 }
-build.dependsOn buildLibpd
+assemble.dependsOn buildLibpd

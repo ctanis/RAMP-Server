@@ -6,16 +6,23 @@ import org.puredata.core.PdBase;
 
 public class JavaSoundSample {
     public static void main(String[] args) throws InterruptedException, IOException {
+        // Open the Pure Data patch.
         System.out.println(">> Starting server.");
+        int patch = PdBase.openPatch("build/resources/main/plain.pd");
 
-        JavaSoundThread audioThread = new JavaSoundThread(44100, 2, 16);
-        int patch = PdBase.openPatch("src/main/resources/test.pd");
+        // Create a reciever for listening to messages PD sends back.
+        JavaSoundReceiver receiver = new JavaSoundReceiver();
+        PdBase.setReceiver(receiver);
+
+        // Start a new thread that processes the audio and outputs the results
+        // to your computer's speakers.
+        JavaSoundThread audioThread = new JavaSoundThread("build/resources/main/input.wav");
         audioThread.start();
-        Thread.sleep(5000);  // Sleep for five seconds; this is where the main application code would go in a real program.
+        Thread.sleep(5000);
         audioThread.interrupt();
         audioThread.join();
-        PdBase.closePatch(patch);
 
+        PdBase.closePatch(patch);
         System.out.println(">> Exiting server.");
     }
 }

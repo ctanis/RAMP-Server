@@ -17,6 +17,13 @@ The web-based client application can be found [here](https://github.com/mattpric
 sudo apt-get install git gcc make default-jdk
 ```
 
+<!--
+Instructions for installing OpenJDK 7 on Debian.
+sudo apt-get install git gcc make openjdk-7-jdk
+ARCH_DIR=`getconf LONG_BIT | sed -E "s/64/amd64/" | sed -E "s/32/i386/"`
+sudo ln -s /usr/lib/jvm/java-7-openjdk-$ARCH_DIR /usr/lib/jvm/default-java
+-->
+
 #### CentOS, Red Hat, Fedora
 
 ```bash
