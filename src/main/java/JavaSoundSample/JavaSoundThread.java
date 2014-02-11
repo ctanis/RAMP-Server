@@ -34,7 +34,9 @@ public class JavaSoundThread extends Thread {
         try {
             audioInputStream = AudioSystem.getAudioInputStream(new File(audioPath));
             audioFormat      = audioInputStream.getFormat();
-        } catch (IOException | UnsupportedAudioFileException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
 
@@ -53,7 +55,9 @@ public class JavaSoundThread extends Thread {
         terminated = false;
         try {
             perform();
-        } catch (IOException | LineUnavailableException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
             e.printStackTrace();
         }
     }
