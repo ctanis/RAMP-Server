@@ -114,6 +114,10 @@ task cleanLibpd {
         }
         println stdout.toString()
     }
+
+    // Clobber doesn't delete every file in the "libs" folder, causing Gradle
+    // to sometimes think that buildLibpd is up-to-date even though it's not.
+    delete fileTree(dir: "$libpdDir/libs/")
 }
 clean.dependsOn cleanLibpd
 
