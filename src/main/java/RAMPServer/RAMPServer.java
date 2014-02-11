@@ -16,7 +16,7 @@ public class RAMPServer {
 
         // Build and start the Undertow server.
         Undertow server = Undertow.builder()
-                .addListener(port, "localhost")
+                .addListener(port, "0.0.0.0")
                 .setHandler(new HttpHandler() {
                     @Override
                     public void handleRequest(final HttpServerExchange exchange) throws Exception {
@@ -27,6 +27,6 @@ public class RAMPServer {
         server.start();
 
         System.out.println();
-        System.out.println("Started server at http://localhost:" + port + "/. Hit ^C to stop.");
+        System.out.println("Started server at http://0.0.0.0:" + port + "/. Hit ^C to stop.");
     }
 }

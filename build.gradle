@@ -31,7 +31,6 @@ repositories {
 }
 
 dependencies {
-    compile 'org.mortbay.jetty:jetty-runner:8.1.14.v20131031'
     compile 'io.undertow:undertow-core:1.0.0.Beta29'
 
     // The libpd JAR is required for RAMP to compile.
@@ -51,6 +50,14 @@ run.doFirst {
     // If we don't do this the program will crash.
     systemProperty 'java.library.path', "$libpdDir/libs/"
 }
+
+
+/**
+ * Heroku Tasks
+ */
+
+task stage(dependsOn: ['clean', 'installApp'])
+
 
 /**
  * Custom Tasks
