@@ -44,8 +44,8 @@ public class JavaSoundThread extends Thread {
         channels   = audioFormat.getChannels();
         ticks      = audioFormat.getSampleSizeInBits();
 
-        PdBase.openAudio(0, channels, (int)sampleRate);
-        // PdBase.computeAudio(true);
+        PdBase.openAudio(channels, channels, (int)sampleRate);
+        PdBase.computeAudio(true);
     }
 
     @Override
@@ -98,14 +98,9 @@ public class JavaSoundThread extends Thread {
             shortBuf2.rewind();
             shortBuf2.get(inBuffer);
 
-            // System.out.println(Arrays.toString(inBuffer));
-
             // TODO: This returns a status code. Maybe we should check for it?
             PdBase.process(ticks, inBuffer, outBuffer);
             PdBase.pollPdMessageQueue();
-
-            // TODO: outBuffer is empty.
-            // System.out.println(Arrays.toString(outBuffer));
 
             // Write the sound data to the audio driver.
             // NOTE: This is where we will output audio to the Web Socket.
