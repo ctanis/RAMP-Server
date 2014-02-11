@@ -31,6 +31,9 @@ repositories {
 }
 
 dependencies {
+    compile 'org.mortbay.jetty:jetty-runner:8.1.14.v20131031'
+    compile 'io.undertow:undertow-core:1.0.0.Beta29'
+
     // The libpd JAR is required for RAMP to compile.
     compile fileTree(dir: "$libpdDir/libs/", include: '*.jar')
 }
@@ -40,7 +43,8 @@ dependencies {
  * Program Arguments
  */
 
-mainClassName = 'JavaSoundSample.JavaSoundSample'
+//mainClassName = 'JavaSoundSample.JavaSoundSample'
+mainClassName = 'RAMPServer.RAMPServer'
 
 run.doFirst {
     // Include the native libpd libraries when running RAMP.
