@@ -27,6 +27,6 @@ public class RAMPServer {
         server.start();
 
         System.out.println();
-        System.out.println("Started server at http://0.0.0.0:" + port + "/. Hit ^C to stop.");
+        System.out.println("Started server at http://localhost:" + port + "/. Hit ^C to stop.");
     }
 }
