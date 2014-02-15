@@ -65,9 +65,9 @@ task stage(dependsOn: ['clean', 'installApp'])
 
 defaultTasks 'build'
 
-// Downloads the current version of libpd and prepares it for commiting.
+// Downloads the current version of libpd and prepares it for committing.
 task downloadLibpd(type: GitClone) {
-    description 'Downloads the current version of libpd and prepares it for commiting.'
+    description 'Downloads the current version of libpd and prepares it for committing.'
 
     // Download libpd.
     def destination = file(libpdDir)
