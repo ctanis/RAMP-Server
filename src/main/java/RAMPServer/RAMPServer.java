@@ -49,12 +49,9 @@ class RootPageHandler implements HttpHandler {
 class WebSocketsHandler implements WebSocketConnectionCallback {
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-        System.out.println(">> Received websocket connection.");
-
         channel.getReceiveSetter().set(new AbstractReceiveListener() {
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
-                System.out.println(">> Received websocket message: " + message.getData());
                 WebSockets.sendText(message.getData(), channel, null);
             }
         });

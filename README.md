@@ -11,20 +11,25 @@ The web-based client application can be found [here](https://github.com/mattpric
 ### Linux
 
 * Git, GCC, and Make
-* [OpenJDK 6+](http://openjdk.java.net/install/index.html) or [Oracle JDK 6+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* [OpenJDK 7+](http://openjdk.java.net/install/index.html) or [Oracle JDK 7+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
-#### Debian, Ubuntu
+Note that libpd searches for the Java libraries in `$JAVA_HOME` and falls back to `/usr/lib/jvm/default-java`. If you install Java using a method not listed below, you will need to set `$JAVA_HOME` or create a symbolic link to the correct location.
+
+#### Ubuntu
 
 ```bash
 sudo apt-get install git gcc make default-jdk
 ```
 
-<!--
-Instructions for installing OpenJDK 7 on Debian.
+#### Debian
+
+The default JDK on Debian is currently OpenJDK 6, which isn't high enough to run a RAMP server. The following instructions should install OpenJDK 7 and configure it correctly.
+
+```bash
 sudo apt-get install git gcc make openjdk-7-jdk
 ARCH_DIR=`getconf LONG_BIT | sed -E "s/64/amd64/" | sed -E "s/32/i386/"`
 sudo ln -s /usr/lib/jvm/java-7-openjdk-$ARCH_DIR /usr/lib/jvm/default-java
--->
+```
 
 #### CentOS, Red Hat, Fedora
 
@@ -33,12 +38,10 @@ sudo yum install git gcc make java-1.7.0-openjdk-devel
 sudo ln -s /etc/alternatives/java_sdk /usr/lib/jvm/default-java
 ```
 
-Note that libpd searches for the Java libraries in `$JAVA_HOME` and falls back to `/usr/lib/jvm/default-java`. If you have installed Java using another method you will need to set `$JAVA_HOME`, or create a symbolic link, to the correct location.
-
 ### Mac OS X
 
 * [Xcode](http://itunes.apple.com/us/app/xcode/id497799835) or the [Command Line Tools for Xcode](https://developer.apple.com/downloads)
-* [Oracle JDK 6+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* [Oracle JDK 7+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ## Instructions
 
