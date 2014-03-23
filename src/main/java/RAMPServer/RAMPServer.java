@@ -1,5 +1,12 @@
 package RAMPServer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -16,7 +23,28 @@ import static io.undertow.Handlers.path;
 import static io.undertow.Handlers.resource;
 import static io.undertow.Handlers.websocket;
 
+import javax.sound.sampled.spi.AudioFileWriter;
+
 public class RAMPServer {
+    public static byte[] toByteArray(File file) {
+        int length = (int)file.length();
+        byte[] array = new byte[length];
+
+        try {
+            int offset = 0;
+            InputStream in = new FileInputStream(file);
+            while (offset < length) {
+                int count = in.read(array, offset, (length - offset));
+                offset += count;
+            }
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return array;
+    }
+
     public static void main(final String[] args) {
         // Use port 8080 if $PORT is not set.
         int port = 8080;
@@ -28,8 +56,9 @@ public class RAMPServer {
         Undertow server = Undertow.builder().addListener(port, "0.0.0.0")
             .setHandler(path()
                 .addPath("/", new RootPageHandler())
-                .addPath("/echo", websocket(new WebSocketsHandler())))
-            .build();
+                .addPath("/echo", websocket(new EchoHandler()))
+                .addPath("/stream", websocket(new StreamingHandler()))
+            ).build();
         server.start();
 
         System.out.println();
@@ -46,7 +75,7 @@ class RootPageHandler implements HttpHandler {
     }
 }
 
-class WebSocketsHandler implements WebSocketConnectionCallback {
+class EchoHandler implements WebSocketConnectionCallback {
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
         channel.getReceiveSetter().set(new AbstractReceiveListener() {
@@ -56,5 +85,14 @@ class WebSocketsHandler implements WebSocketConnectionCallback {
             }
         });
         channel.resumeReceives();
+    }
+}
+
+class StreamingHandler implements WebSocketConnectionCallback {
+    @Override
+    public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
+        File input = new File("build/resources/main/mario.wav");
+        byte[] buffer = RAMPServer.toByteArray(input);
+        WebSockets.sendBinary(ByteBuffer.wrap(buffer), channel, null);
     }
 }
