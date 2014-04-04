@@ -4,7 +4,7 @@
 
 A server application that applies equalizer modifications on up to 24 tracks simultaneously and then streams the results back to a client application in realtime.
 
-The web-based client application can be found [here](https://github.com/mattprice/RAMP-Webapp).
+You can find the web-based client application [here](https://github.com/mattprice/RAMP-Webapp).
 
 ## Requirements
 
@@ -58,7 +58,14 @@ sudo ln -s /etc/alternatives/java_sdk /usr/lib/jvm/default-java
 
 * `./gradlew run` — Builds and runs the RAMP application.
 * `./gradlew build` — Builds the RAMP application.
-* `./gradlew clean` — Deletes all compiled files. This can be useful if you think one of the intermediate files is corrupt. The next time you build RAMP it will build all files from scratch instead of ignoring unchanged files.
+* `./gradlew clean` — Deletes all compiled files. This is can be useful if you think an intermediate file is corrupt. The next time you build RAMP it will build all files from scratch instead of ignoring unchanged files.
+* `./gradlew stage` — Prepares the application for deployment. You can then run the server by executing `./build/install/RAMP-Server/bin/RAMP-Server`.
+
+## Miscellaneous Notes
+
+* If you modify any part of libpd you will need to manually call `./gradlew clean` or Gradle won't know that libpd needs rebuilding.
+    * You should automate any patches you make to libpd within the downloadLibpd Gradle task. This will make it easier for you to upgrade libpd later.
+    * The downloadLibpd task is only run if the `src/libpd` directory is missing. If you want to upgrade libpd, just delete the entire `src/libpd` directory before building.
 
 ## License
 
