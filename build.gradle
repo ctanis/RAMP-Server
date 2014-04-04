@@ -6,6 +6,24 @@ import org.ajoberstar.gradle.git.tasks.*
 
 
 /**
+ * Helper Functions
+ */
+
+// Downloads a file to a given directory.
+def download(address, outputDir)
+{
+    // Create the output directory if necessary.
+    new File(outputDir).mkdirs()
+
+    // Download the file.
+    def file = new FileOutputStream(outputDir + address.tokenize("/")[-1])
+    def out = new BufferedOutputStream(file)
+    out << new URL(address).openStream()
+    out.close()
+}
+
+
+/**
  * Gradle Buildscript Dependencies
  */
 
@@ -53,7 +71,7 @@ run.doFirst {
 
 
 /**
- * Heroku Tasks
+ * Deployment Tasks
  */
 
 task stage(dependsOn: ['clean', 'installApp'])
@@ -72,17 +90,17 @@ task downloadLibpd(type: GitClone) {
     // Download libpd.
     def destination = file(libpdDir)
     if (! destination.exists() ) {
-        println ">> Downloading the latest libpd version."
+        println '>> Downloading the latest libpd version.'
     }
 
-    uri = "https://github.com/libpd/libpd.git"
+    uri = 'https://github.com/libpd/libpd.git'
     destinationPath = destination
     bare = false
     enabled = !destination.exists()
 
     doLast {
         // Remove all the files and directories we don't need.
-        println ">> Cleaning up libpd directory."
+        println '>> Cleaning up libpd directory.'
         delete file("$libpdDir/.classpath")
         delete file("$libpdDir/.git")
         delete file("$libpdDir/.gitmodules")
@@ -104,10 +122,48 @@ task downloadLibpd(type: GitClone) {
 
         // Add a gitignore so that the libs folder gets committed.
         // If the folder doesn't exist, compiling libpd will fail.
-        def file = new File("$libpdDir/libs/.gitignore")
-        file.write('')
+        new File("$libpdDir/libs/.gitignore").write('')
+
+        // A list of all the OSC externals that we need to download.
+        def externals = [
+            "LICENSE.txt", "README.txt",
+            "packOSC.c", "packingOSC.h", "pipelist.c", "routeOSC.c", "unpackOSC.c"
+        ]
+
+        // Download the OSC externals.
+        println '>> Downloading OSC externals.'
+        externals.each { file ->
+            download(
+                "https://svn.code.sf.net/p/pure-data/svn/trunk/externals/mrpeach/osc/$file",
+                "$libpdDir/pure-data/extra/osc/"
+            )
+        }
+
+        // List each file we need to add to the Makefile and initialize() method.
+        def srcFiles = [], fileSetup = []
+        externals.each { file ->
+            if (file.endsWith('.c')) {
+                srcFiles.add('pure-data/extra/osc/' + file)
+                fileSetup.add('  ' + file.tokenize(".")[0] + '_setup();')
+            }
+        }
+
+        // Add $srcFiles to PD_FILES in the Makefile.
+        println '>> Patching Makefile.'
+        def makefile = new File("$libpdDir/Makefile")
+        def fileText = makefile.text
+        fileText = fileText.replaceAll('PD_FILES =', "PD_FILES = ${srcFiles.join(' ')}")
+        makefile.write(fileText)
+
+        // Add $fileSetup calls to the JNI initialize() method.
+        println '>> Patching jni/z_jni_shared.c'
+        def jni = new File("$libpdDir/jni/z_jni_shared.c")
+        fileText = jni.text
+        fileText = fileText.replaceAll('libpd_queued_init\\(\\);', "libpd_queued_init();\n${fileSetup.join('\n')}")
+        jni.write(fileText)
     }
 }
+
 
 // Deletes all compiled libpd libraries.
 task cleanLibpd {
