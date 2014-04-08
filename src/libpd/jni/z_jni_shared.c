@@ -178,10 +178,16 @@ JNIEXPORT jint JNICALL JNI_OnLoad
 JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
 (JNIEnv *env, jclass cls) {
   libpd_queued_init();
+  bandpass_setup();
+  highpass_setup();
+  lowpass_setup();
+  udpreceive_setup();
+  udpsend_setup();
   packOSC_setup();
   pipelist_setup();
   routeOSC_setup();
   unpackOSC_setup();
+  compressor~_setup();
 
   objClass = LIBPD_CLASS_REF("java/lang/Object");
   floatClass = LIBPD_CLASS_REF("java/lang/Float");

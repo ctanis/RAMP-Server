@@ -16,7 +16,7 @@ def download(address, outputDir)
     new File(outputDir).mkdirs()
 
     // Download the file.
-    def file = new FileOutputStream(outputDir + address.tokenize("/")[-1])
+    def file = new FileOutputStream(outputDir + address.tokenize('/')[-1])
     def out = new BufferedOutputStream(file)
     out << new URL(address).openStream()
     out.close()
@@ -124,27 +124,50 @@ task downloadLibpd(type: GitClone) {
         // If the folder doesn't exist, compiling libpd will fail.
         new File("$libpdDir/libs/.gitignore").write('')
 
-        // A list of all the OSC externals that we need to download.
+        // A list of all the externals that we need to download.
         def externals = [
-            "LICENSE.txt", "README.txt",
-            "packOSC.c", "packingOSC.h", "pipelist.c", "routeOSC.c", "unpackOSC.c"
+            "ggee/filters": [
+                "bandpass.c",
+                "filters.h",
+                "highpass.c",
+                "lowpass.c"
+            ],
+
+            "mrpeach/net": [
+                "LICENSE.txt",
+                "udpreceive.c",
+                "udpsend.c"
+            ],
+
+            "mrpeach/osc": [
+                "LICENSE.txt",
+                "packingOSC.h",
+                "packOSC.c",
+                "pipelist.c",
+                "routeOSC.c",
+                "unpackOSC.c"
+            ],
+
+            "unauthorized": [
+                "compressor~.c"
+            ]
         ]
 
-        // Download the OSC externals.
-        println '>> Downloading OSC externals.'
-        externals.each { file ->
-            download(
-                "https://svn.code.sf.net/p/pure-data/svn/trunk/externals/mrpeach/osc/$file",
-                "$libpdDir/pure-data/extra/osc/"
-            )
-        }
-
-        // List each file we need to add to the Makefile and initialize() method.
         def srcFiles = [], fileSetup = []
-        externals.each { file ->
-            if (file.endsWith('.c')) {
-                srcFiles.add('pure-data/extra/osc/' + file)
-                fileSetup.add('  ' + file.tokenize(".")[0] + '_setup();')
+        println '>> Downloading externals.'
+        externals.each { folder, files ->
+            files.each { file ->
+                // Download the externals.
+                download(
+                    "https://svn.code.sf.net/p/pure-data/svn/trunk/externals/$folder/$file",
+                    "$libpdDir/pure-data/extra/$folder/"
+                )
+
+                // List each file we need to add to the Makefile and initialize() method.
+                if (file.endsWith('.c')) {
+                    srcFiles.add("pure-data/extra/$folder/$file")
+                    fileSetup.add('  ' + file.tokenize(".")[0] + '_setup();')
+                }
             }
         }
 
@@ -163,7 +186,6 @@ task downloadLibpd(type: GitClone) {
         jni.write(fileText)
     }
 }
-
 
 // Deletes all compiled libpd libraries.
 task cleanLibpd {

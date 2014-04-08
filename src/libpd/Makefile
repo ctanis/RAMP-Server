@@ -42,7 +42,7 @@ endif
 
 PDNATIVE_SOLIB_EXT ?= $(SOLIB_EXT)
 
-PD_FILES = pure-data/extra/osc/packOSC.c pure-data/extra/osc/pipelist.c pure-data/extra/osc/routeOSC.c pure-data/extra/osc/unpackOSC.c \
+PD_FILES = pure-data/extra/ggee/filters/bandpass.c pure-data/extra/ggee/filters/highpass.c pure-data/extra/ggee/filters/lowpass.c pure-data/extra/mrpeach/net/udpreceive.c pure-data/extra/mrpeach/net/udpsend.c pure-data/extra/mrpeach/osc/packOSC.c pure-data/extra/mrpeach/osc/pipelist.c pure-data/extra/mrpeach/osc/routeOSC.c pure-data/extra/mrpeach/osc/unpackOSC.c pure-data/extra/unauthorized/compressor~.c \
 	pure-data/src/d_arithmetic.c pure-data/src/d_array.c pure-data/src/d_ctl.c \
 	pure-data/src/d_dac.c pure-data/src/d_delay.c pure-data/src/d_fft.c \
 	pure-data/src/d_fft_mayer.c pure-data/src/d_fftroutine.c \
