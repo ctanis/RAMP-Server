@@ -117,6 +117,7 @@ task downloadLibpd(type: GitClone) {
         delete file("$libpdDir/mingw_build.bat")
         delete file("$libpdDir/objc/")
         delete file("$libpdDir/python/")
+        delete file("$libpdDir/pure-data/extra/")
         delete file("$libpdDir/samples/")
         delete fileTree(dir: "$libpdDir/libs/")
 
@@ -126,6 +127,15 @@ task downloadLibpd(type: GitClone) {
 
         // A list of all the externals that we need to download.
         def externals = [
+           "extra/expr~": [
+                "LICENSE.txt",
+                "fts_to_pd.h",
+                "vexp.c",
+                "vexp.h",
+                "vexp_fun.c",
+                "vexp_if.c"
+           ],
+
             "ggee/filters": [
                 "bandpass.c",
                 "filters.h",
@@ -153,36 +163,56 @@ task downloadLibpd(type: GitClone) {
             ]
         ]
 
-        def srcFiles = [], fileSetup = []
+        def extFlags = [], extSetup = [], extImport = []
         println '>> Downloading externals.'
         externals.each { folder, files ->
+            extFlags.add("-I./pure-data/externals/$folder")
+            extImport.add('')
+            extSetup.add('')
+
             files.each { file ->
                 // Download the externals.
                 download(
                     "https://svn.code.sf.net/p/pure-data/svn/trunk/externals/$folder/$file",
-                    "$libpdDir/pure-data/extra/$folder/"
+                    "$libpdDir/pure-data/externals/$folder/"
                 )
 
-                // List each file we need to add to the Makefile and initialize() method.
-                if (file.endsWith('.c')) {
-                    srcFiles.add("pure-data/extra/$folder/$file")
-                    fileSetup.add('  ' + file.tokenize(".")[0] + '_setup();')
+                // List each file we need to #include and initialize().
+                //
+                // Manually add anything that's special.
+                if (file == "vexp.c") {
+                    // This file doesn't follow the <filename>_setup() convention.
+                    extImport.add('#include "vexp.c"')
+                    extSetup.add('  expr_setup();')
+                } else if (file.startsWith("vexp_")) {
+                    // These files have no setup calls.
+                    extImport.add("#include \"$file\"")
+                }
+
+                // Automatically add everything else.
+                else if (file.endsWith('.h')) {
+                    extImport.add("#import \"$file\"")
+                } else if (file.endsWith('.c')) {
+                    extImport.add("#include \"$file\"")
+                    extSetup.add('  ' + file.tokenize(".")[0].replaceAll('~', '_tilde') + '_setup();')
                 }
             }
         }
 
-        // Add $srcFiles to PD_FILES in the Makefile.
+        // Add the externals' folder to CFLAGS.
         println '>> Patching Makefile.'
         def makefile = new File("$libpdDir/Makefile")
         def fileText = makefile.text
-        fileText = fileText.replaceAll('PD_FILES =', "PD_FILES = ${srcFiles.join(' ')}")
+        fileText = fileText.replaceAll('-I./pure-data/src', "-I./pure-data/src ${extFlags.join(' ')}")
         makefile.write(fileText)
 
-        // Add $fileSetup calls to the JNI initialize() method.
+        // Add $extImport to the JNI header.
+        // Add $extSetup calls to the JNI initialize() method.
         println '>> Patching jni/z_jni_shared.c'
         def jni = new File("$libpdDir/jni/z_jni_shared.c")
         fileText = jni.text
-        fileText = fileText.replaceAll('libpd_queued_init\\(\\);', "libpd_queued_init();\n${fileSetup.join('\n')}")
+        fileText = fileText.replaceAll('#include "z_queued.h"', "#include \"z_queued.h\"\n${extImport.join('\n')}")
+        fileText = fileText.replaceAll('libpd_queued_init\\(\\);', "libpd_queued_init();\n${extSetup.join('\n')}")
         jni.write(fileText)
     }
 }

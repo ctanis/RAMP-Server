@@ -16,6 +16,28 @@
 #include "z_libpd.h"
 #include "z_queued.h"
 
+#import "fts_to_pd.h"
+#include "vexp.c"
+#import "vexp.h"
+#include "vexp_fun.c"
+#include "vexp_if.c"
+
+#include "bandpass.c"
+#import "filters.h"
+#include "highpass.c"
+#include "lowpass.c"
+
+#include "udpreceive.c"
+#include "udpsend.c"
+
+#import "packingOSC.h"
+#include "packOSC.c"
+#include "pipelist.c"
+#include "routeOSC.c"
+#include "unpackOSC.c"
+
+#include "compressor~.c"
+
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static JNIEnv *cached_env = NULL;
 
@@ -178,16 +200,22 @@ JNIEXPORT jint JNICALL JNI_OnLoad
 JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
 (JNIEnv *env, jclass cls) {
   libpd_queued_init();
+
+  expr_setup();
+
   bandpass_setup();
   highpass_setup();
   lowpass_setup();
+
   udpreceive_setup();
   udpsend_setup();
+
   packOSC_setup();
   pipelist_setup();
   routeOSC_setup();
   unpackOSC_setup();
-  compressor~_setup();
+
+  compressor_tilde_setup();
 
   objClass = LIBPD_CLASS_REF("java/lang/Object");
   floatClass = LIBPD_CLASS_REF("java/lang/Float");

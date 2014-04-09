@@ -42,7 +42,7 @@ endif
 
 PDNATIVE_SOLIB_EXT ?= $(SOLIB_EXT)
 
-PD_FILES = pure-data/extra/ggee/filters/bandpass.c pure-data/extra/ggee/filters/highpass.c pure-data/extra/ggee/filters/lowpass.c pure-data/extra/mrpeach/net/udpreceive.c pure-data/extra/mrpeach/net/udpsend.c pure-data/extra/mrpeach/osc/packOSC.c pure-data/extra/mrpeach/osc/pipelist.c pure-data/extra/mrpeach/osc/routeOSC.c pure-data/extra/mrpeach/osc/unpackOSC.c pure-data/extra/unauthorized/compressor~.c \
+PD_FILES = \
 	pure-data/src/d_arithmetic.c pure-data/src/d_array.c pure-data/src/d_ctl.c \
 	pure-data/src/d_dac.c pure-data/src/d_delay.c pure-data/src/d_fft.c \
 	pure-data/src/d_fft_mayer.c pure-data/src/d_fftroutine.c \
@@ -95,7 +95,7 @@ PDJAVA_DIR = $(PDJAVA_BUILD)/org/puredata/core/natives/$(PDNATIVE_PLATFORM)/$(PD
 PDJAVA_NATIVE = $(PDJAVA_DIR)/$(SOLIB_PREFIX)pdnative.$(PDNATIVE_SOLIB_EXT)
 PDJAVA_JAR = libs/libpd.jar
 
-CFLAGS = -DPD -DHAVE_UNISTD_H -DUSEAPI_DUMMY -I./pure-data/src \
+CFLAGS = -DPD -DHAVE_UNISTD_H -DUSEAPI_DUMMY -I./pure-data/src -I./pure-data/externals/extra/expr~ -I./pure-data/externals/ggee/filters -I./pure-data/externals/mrpeach/net -I./pure-data/externals/mrpeach/osc -I./pure-data/externals/unauthorized \
          -I./libpd_wrapper -I./libpd_wrapper/util $(PLATFORM_CFLAGS)
 
 .PHONY: libpd csharplib javalib clean clobber

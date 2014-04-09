@@ -2,8 +2,22 @@
  * jMax
  * Copyright (C) 1994, 1995, 1998, 1999 by IRCAM-Centre Georges Pompidou, Paris, France.
  * 
- * This is licensed under LGPL -- see the file, LICENSE.txt in this directory.
- *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * See file LICENSE for further informations on licensing terms.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * 
  * Based on Max/ISPW by Miller Puckette.
  *
  * Authors: Maurizio De Cecco, Francois Dechelle, Enzo Maggi, Norbert Schnell.
@@ -93,7 +107,7 @@ struct ex_ex;
 struct ex_ex {
         union {
                 long v_int;
-                float v_flt;
+                t_float v_flt;
                 t_float *v_vec;         /* this is an for allocated vector */
                 long op;
                 char *ptr;
@@ -192,10 +206,10 @@ typedef struct expr {
         struct ex_ex exp_res[MAX_VARS]; /* the evluation result */
         t_float *exp_p_var[MAX_VARS];
         t_float *exp_p_res[MAX_VARS];   /* the previous evaluation result */
-        t_float *exp_tmpres[MAX_VARS];          /* temporty result for fexpr~ */
+        t_float *exp_tmpres[MAX_VARS];  /* temporty result for fexpr~ */
         int exp_vsize;                  /* the size of the signal vector */
         int exp_nivec;                  /* # of vector inlets */
-        float exp_f;            /* control value to be transformed to signal */
+        t_float exp_f;          /* control value to be transformed to signal */
 } t_expr;
 
 typedef struct ex_funcs {
