@@ -94,6 +94,9 @@ class StreamingHandler implements WebSocketConnectionCallback {
             File input = new File("build/resources/main/mario.wav");
             audioInputStream = AudioSystem.getAudioInputStream(input);
             audioFormat = audioInputStream.getFormat();
+            // Create a reciever for listening to messages PD sends back.
+            RAMPReceiver receiver = new RAMPReceiver();
+            PdBase.setReceiver(receiver);
 
             // NOTE: I think that `ticks` can be set to anything we want...
             sampleRate = audioFormat.getSampleRate();
