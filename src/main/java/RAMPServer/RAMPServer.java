@@ -8,11 +8,6 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -52,6 +47,17 @@ public class RAMPServer {
         System.out.println();
         System.out.println(">> Started server at http://localhost:" + port + "/");
         System.out.println(">> Press Ctrl+C to exit.");
+
+        try {
+            // Open the Pure Data patch.
+            int patch = PdBase.openPatch("build/resources/main/ramp.pd");
+
+            // Create a reciever for listening to messages PD sends back.
+            RAMPReceiver receiver = new RAMPReceiver();
+            PdBase.setReceiver(receiver);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
@@ -79,30 +85,18 @@ class EchoHandler implements WebSocketConnectionCallback {
 class StreamingHandler implements WebSocketConnectionCallback {
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-        AudioInputStream audioInputStream;
-        AudioFormat      audioFormat;
-        float            sampleRate;      // Sample rate in Hz.
-        int              inputChannels;   // Number of input channels.
-        int              outputChannels;  // Number of output channels.
-        int              ticks;           // Number of Pd ticks per buffer.
+        float sampleRate;      // Sample rate in Hz.
+        int   inputChannels;   // Number of input channels.
+        int   outputChannels;  // Number of output channels.
+        int   ticks;           // Number of Pd ticks per buffer.
 
         // Attempt to load the audio file.
         try {
-            // Open the Pure Data patch.
-            int patch = PdBase.openPatch("build/resources/main/plain.pd");
-
-            File input = new File("build/resources/main/mario.wav");
-            audioInputStream = AudioSystem.getAudioInputStream(input);
-            audioFormat = audioInputStream.getFormat();
-            // Create a reciever for listening to messages PD sends back.
-            RAMPReceiver receiver = new RAMPReceiver();
-            PdBase.setReceiver(receiver);
-
-            // NOTE: I think that `ticks` can be set to anything we want...
-            sampleRate = audioFormat.getSampleRate();
-            inputChannels = audioFormat.getChannels();
-            outputChannels = audioFormat.getChannels();
-            ticks = audioFormat.getSampleSizeInBits();
+            // Lower ticks in order to lower latency.
+            sampleRate = 48000;
+            inputChannels = 2;
+            outputChannels = 2;
+            ticks = 16;
 
             PdBase.openAudio(inputChannels, outputChannels, (int)sampleRate);
             PdBase.computeAudio(true);
@@ -111,29 +105,23 @@ class StreamingHandler implements WebSocketConnectionCallback {
 
             // Create the buffers used to exchange data between Java and libpd.
             int frames = PdBase.blockSize() * ticks;
-            short[] pdInBuffer = new short[frames * inputChannels];
+            short[] pdInBuffer = new short[0];
             short[] pdOutBuffer = new short[frames * outputChannels];
-
-            // Create the buffers required for converting from byte[] to short[].
-            byte[] rawInput = new byte[pdInBuffer.length * sampleSize];
-            ShortBuffer rawInputAsShorts = ByteBuffer.wrap(rawInput).asShortBuffer();
 
             // Create the buffers required for converting from short[] to byte[].
             byte[] rawOutput = new byte[pdOutBuffer.length * sampleSize];
             ShortBuffer rawOutputAsShorts = ByteBuffer.wrap(rawOutput).asShortBuffer();
 
-            // audioInputStream.read retuns -1 when there's no more data.
+            // Restarts the song.
+            PdBase.sendFloat("position_in", 0.0f);
+            PdBase.sendMessage("play", "true");
+
+            // Loop forever!
             int remaining = 1;
             while (remaining != -1) {
-                // Copy the next song chunk from audioInputStream into rawInput.
-                remaining = audioInputStream.read(rawInput);
-
-                // Convert and place the rawInput (bytes) into pdInBuffer (shorts).
-                rawInputAsShorts.rewind();
-                rawInputAsShorts.get(pdInBuffer);
-
                 // TODO: This returns a status code. Maybe we should check for it?
                 PdBase.process(ticks, pdInBuffer, pdOutBuffer);
+                PdBase.pollPdMessageQueue();
 
                 // Convert and place the pdOutBuffer (shorts) into rawOutput (bytes).
                 rawOutputAsShorts.rewind();
@@ -142,8 +130,6 @@ class StreamingHandler implements WebSocketConnectionCallback {
                 WebSockets.sendBinaryBlocking(ByteBuffer.wrap(rawOutput), channel);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
     }

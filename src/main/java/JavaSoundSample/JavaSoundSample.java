@@ -8,7 +8,7 @@ public class JavaSoundSample {
     public static void main(String[] args) throws InterruptedException, IOException {
         // Open the Pure Data patch.
         System.out.println(">> Starting server.");
-        int patch = PdBase.openPatch("build/resources/main/plain.pd");
+        int patch = PdBase.openPatch("build/resources/main/ramp.pd");
 
         // Create a reciever for listening to messages PD sends back.
         JavaSoundReceiver receiver = new JavaSoundReceiver();
@@ -16,9 +16,9 @@ public class JavaSoundSample {
 
         // Start a new thread that processes the audio and outputs the results
         // to your computer's speakers.
-        JavaSoundThread audioThread = new JavaSoundThread("build/resources/main/input.wav");
+        JavaSoundThread audioThread = new JavaSoundThread();
         audioThread.start();
-        Thread.sleep(5000);
+        Thread.sleep(100000);
         audioThread.interrupt();
         audioThread.join();
 
