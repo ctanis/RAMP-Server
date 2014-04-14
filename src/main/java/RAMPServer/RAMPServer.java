@@ -112,9 +112,10 @@ class StreamingHandler implements WebSocketConnectionCallback {
             byte[] rawOutput = new byte[pdOutBuffer.length * sampleSize];
             ShortBuffer rawOutputAsShorts = ByteBuffer.wrap(rawOutput).asShortBuffer();
 
-            // Restarts the song.
-            PdBase.sendFloat("position_in", 0.0f);
-            PdBase.sendMessage("play", "true");
+            // Restart the song.
+            PdBase.sendMessage("osc", "/position", 0.0f);
+            PdBase.sendMessage("osc", "/master/vol", -0.95f);
+            PdBase.sendMessage("osc", "/play");
 
             // Loop forever!
             int remaining = 1;

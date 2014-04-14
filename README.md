@@ -58,7 +58,7 @@ sudo ln -s /etc/alternatives/java_sdk /usr/lib/jvm/default-java
 
 * `./gradlew run` — Builds and runs the RAMP application.
 * `./gradlew build` — Builds the RAMP application.
-* `./gradlew clean` — Deletes all compiled files. This is can be useful if you think an intermediate file is corrupt. The next time you build RAMP it will build all files from scratch instead of ignoring unchanged files.
+* `./gradlew clean` — Deletes all compiled files. This can be useful if you think an intermediate file has become corrupt. The next time you build RAMP it will build all files from scratch instead of ignoring unchanged files.
 * `./gradlew stage` — Prepares the application for deployment. You can then run the server by executing `./build/install/RAMP-Server/bin/RAMP-Server`.
 
 ## Miscellaneous Notes

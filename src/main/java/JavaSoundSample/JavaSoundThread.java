@@ -74,8 +74,9 @@ public class JavaSoundThread extends Thread {
         byte[] rawSamples = new byte[outBuffer.length * sampleSize];
         ShortBuffer shortBuf = ByteBuffer.wrap(rawSamples).asShortBuffer();
 
-        PdBase.sendFloat("position_in", 0.0f);
-        PdBase.sendMessage("play", "true");
+        PdBase.sendMessage("osc", "/position", 0.0f);
+        PdBase.sendMessage("osc", "/master/vol", -0.95f);
+        PdBase.sendMessage("osc", "/play");
 
         // SourceDataLine.write seems to clear the interrupted flag, and
         // so Thread.interrupted() doesn't work here.
