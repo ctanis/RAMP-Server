@@ -1,12 +1,6 @@
 package RAMPServer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -24,8 +18,6 @@ import org.puredata.core.PdBase;
 import static io.undertow.Handlers.path;
 import static io.undertow.Handlers.resource;
 import static io.undertow.Handlers.websocket;
-
-import javax.sound.sampled.spi.AudioFileWriter;
 
 public class RAMPServer {
     public static void main(final String[] args) {
@@ -85,53 +77,27 @@ class EchoHandler implements WebSocketConnectionCallback {
 class StreamingHandler implements WebSocketConnectionCallback {
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-        float sampleRate;      // Sample rate in Hz.
-        int   inputChannels;   // Number of input channels.
-        int   outputChannels;  // Number of output channels.
-        int   ticks;           // Number of Pd ticks per buffer.
-
-        // Attempt to load the audio file.
-        try {
-            // Lower ticks in order to lower latency.
-            sampleRate = 48000;
-            inputChannels = 2;
-            outputChannels = 2;
-            ticks = 16;
-
-            PdBase.openAudio(inputChannels, outputChannels, (int)sampleRate);
-            PdBase.computeAudio(true);
-
-            int sampleSize = 2;
-
-            // Create the buffers used to exchange data between Java and libpd.
-            int frames = PdBase.blockSize() * ticks;
-            short[] pdInBuffer = new short[0];
-            short[] pdOutBuffer = new short[frames * outputChannels];
-
-            // Create the buffers required for converting from short[] to byte[].
-            byte[] rawOutput = new byte[pdOutBuffer.length * sampleSize];
-            ShortBuffer rawOutputAsShorts = ByteBuffer.wrap(rawOutput).asShortBuffer();
-
-            // Restart the song.
-            PdBase.sendMessage("osc", "/position", 0.0f);
-            PdBase.sendMessage("osc", "/master/vol", -0.95f);
-            PdBase.sendMessage("osc", "/play");
-
-            // Loop forever!
-            int remaining = 1;
-            while (remaining != -1) {
-                // TODO: This returns a status code. Maybe we should check for it?
-                PdBase.process(ticks, pdInBuffer, pdOutBuffer);
-                PdBase.pollPdMessageQueue();
-
-                // Convert and place the pdOutBuffer (shorts) into rawOutput (bytes).
-                rawOutputAsShorts.rewind();
-                rawOutputAsShorts.put(pdOutBuffer);
-
-                WebSockets.sendBinaryBlocking(ByteBuffer.wrap(rawOutput), channel);
+        // Listen for OSC commands.
+        channel.getReceiveSetter().set(new AbstractReceiveListener() {
+            @Override
+            protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) {
+                // Parse the OSC message and forward it onto Libpd.
+                String[] oscMessage = message.getData().split(" ");
+                if (oscMessage.length > 1) {
+                    try {
+                        Float f = new Float(oscMessage[1]);
+                        PdBase.sendMessage("osc", oscMessage[0], f);
+                    } catch (NumberFormatException e) {
+                        PdBase.sendMessage("osc", oscMessage[0], oscMessage[1]);
+                    }
+                } else {
+                    PdBase.sendMessage("osc", oscMessage[0]);
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
+        channel.resumeReceives();
+
+        RAMPThread thread = new RAMPThread(channel);
+        thread.start();
     }
 }
