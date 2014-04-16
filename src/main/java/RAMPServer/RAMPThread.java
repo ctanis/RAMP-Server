@@ -1,8 +1,10 @@
 package RAMPServer;
 
 import java.io.IOException;
+import java.lang.System;
 import java.lang.Thread;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.ShortBuffer;
 
 import io.undertow.websockets.core.WebSocketChannel;
@@ -16,8 +18,20 @@ public class RAMPThread extends Thread {
     int   inputChannels;   // Number of input channels.
     int   outputChannels;  // Number of output channels.
     int   ticks;           // Number of Pd ticks per buffer.
+    int   patch;
 
     public RAMPThread(WebSocketChannel channel) {
+        try {
+            // Open the Pure Data patch.
+            patch = PdBase.openPatch("build/resources/main/ramp.pd");
+
+            // Create a reciever for listening to messages PD sends back.
+            RAMPReceiver receiver = new RAMPReceiver();
+            PdBase.setReceiver(receiver);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         this.channel = channel;
 
         sampleRate = 48000;
@@ -27,6 +41,14 @@ public class RAMPThread extends Thread {
 
         PdBase.openAudio(inputChannels, outputChannels, (int)sampleRate);
         PdBase.computeAudio(true);
+
+        PdBase.sendMessage("osc", "/master/vol", -0.98f);
+    }
+
+    @Override
+    public void interrupt() {
+        PdBase.closePatch(patch);
+        super.interrupt();
     }
 
     @Override
@@ -45,8 +67,7 @@ public class RAMPThread extends Thread {
             ShortBuffer rawOutputAsShorts = ByteBuffer.wrap(rawOutput).asShortBuffer();
 
             // Loop forever!
-            int remaining = 1;
-            while (remaining != -1) {
+            while (!this.isInterrupted()) {
                 // TODO: This returns a status code. Maybe we should check for it?
                 PdBase.process(ticks, pdInBuffer, pdOutBuffer);
                 PdBase.pollPdMessageQueue();
@@ -55,14 +76,18 @@ public class RAMPThread extends Thread {
                 rawOutputAsShorts.rewind();
                 rawOutputAsShorts.put(pdOutBuffer);
 
-                WebSockets.sendBinaryBlocking(ByteBuffer.wrap(rawOutput), channel);
+                try {
+                    WebSockets.sendBinaryBlocking(ByteBuffer.wrap(rawOutput), channel);
+                } catch (ClosedChannelException e) {
+                    this.interrupt();
+                }
 
                 // Libpd processes the song way faster than it plays.
                 // TODO: This is a total hack. We have *got* to find a better way.
                 try {
-                    Thread.sleep(16);
+                    Thread.sleep(17);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    this.interrupt();
                 }
             }
         } catch (IOException e) {

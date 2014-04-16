@@ -39,17 +39,6 @@ public class RAMPServer {
         System.out.println();
         System.out.println(">> Started server at http://localhost:" + port + "/");
         System.out.println(">> Press Ctrl+C to exit.");
-
-        try {
-            // Open the Pure Data patch.
-            int patch = PdBase.openPatch("build/resources/main/ramp.pd");
-
-            // Create a reciever for listening to messages PD sends back.
-            RAMPReceiver receiver = new RAMPReceiver();
-            PdBase.setReceiver(receiver);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
 
